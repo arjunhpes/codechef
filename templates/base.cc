@@ -26,19 +26,21 @@
 #include <bits/stdc++.h>
 #include <iostream>
 #include <vector>
-
-#ifdef UHATEME // Defined in Xcode Artichtecture for local development.
-
-enum InputType { STDOUT, FILE_IO, FILE_INPUT };
-
-#define CURRENT_INPUT_TYPE STDOUT
-#include "uhateme.h"
-#endif
-
 using namespace std;
+
+enum SolveType { BRUTE, MAIN };
 
 // Template used by Ritesh Singla (alias=uahteme) for competitive programming.
 // TEMPLATE START
+#ifdef UHATEME // Defined in Xcode Artichtecture for local development.
+enum InputType { STDOUT, FILE_IO, FILE_INPUT, GENERATED_INPUT };
+#define CURRENT_INPUT_TYPE GENERATED_INPUT
+#include "uhateme.h"
+
+int TEST_CASE = -1;
+
+#endif
+
 namespace {
 
 // Constants
@@ -75,49 +77,39 @@ inline void UseFastIO(bool use_fast_io) {
     }
 }
 
-#ifdef UHATEME
-inline void SetInputType(InputType input_type) {
-    if (input_type == STDOUT) {
-        return;
-    }
-    if (input_type == FILE_IO) {
-        freopen(GetInputFileName(), "r", stdin);
-        freopen(GetOutputFileName(), "w", stdout);
-        return;
-    }
-    if (input_type == FILE_INPUT) {
-        freopen(GetInputFileName(), "r", stdin);
-        return;
-    }
-    cerr << "Unable to setup the input type. Please handle the error. Found "
-            "input type = "
-         << input_type;
-    abort();
-}
-#endif
-
 } // namespace
 // TEMPLATE END
 
-void SolveTestCase() { cout << "Hello World"; }
+void GenerateInput() {}
 
-void Solve() {
+// Use global vector to pass on the answers if needed.
+vector<int> brute_ans;
+void SolveBruteTestCase() {}
+
+void SolveTestCase() {}
+
+void Solve(SolveType solve_type) {
     int t;
     cin >> t;
-    for (int i = 1; i <= t; i++) {
+    for (int tc = 1; tc <= t; tc++) {
+        cout << "Case #" << tc << ": ";
 #ifdef UHATEME
+        TEST_CASE = tc;
         if (CURRENT_INPUT_TYPE == FILE_IO) {
-            cerr << "Starting Test Case #" << i << endl;
+            cerr << "Starting Test Case #" << tc << endl;
         }
-#endif
-        cout << "Case #" << i << ": ";
-        SolveTestCase();
-#ifdef UHATEME
+        if (solve_type == BRUTE) {
+            SolveBruteTestCase();
+        } else {
+            SolveTestCase();
+        }
         if (CURRENT_INPUT_TYPE == FILE_IO) {
-            cerr << "Completed Test Case #" << i << endl;
+            cerr << "Completed Test Case #" << tc << endl;
             cout.flush();
             cerr.flush();
         }
+#else
+        SolveTestCase();
 #endif
         cout << endl;
     }
@@ -126,7 +118,7 @@ void Solve() {
 int main() {
     UseFastIO(true);
 #ifdef UHATEME
-    SetInputType(CURRENT_INPUT_TYPE);
+    SetInputType(CURRENT_INPUT_TYPE, GenerateInput, Solve);
 #endif
-    Solve();
+    Solve(MAIN);
 }
