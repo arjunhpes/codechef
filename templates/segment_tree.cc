@@ -92,7 +92,6 @@ class SegmentTree {
 } tree;
 
 void SolveTestCase() {
-
     tree.Make(100);
     rep(i, 0, 100) { tree.Update(i, i, i); }
     rep(i, 0, 100) { cout << tree.Query(i, i) << endl; }
