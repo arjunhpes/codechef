@@ -53,18 +53,25 @@ inline void SetInputType(InputType input_type, void (*GenerateInput)(),
         return;
     }
     if (input_type == GENERATED_INPUT) {
+        // Generate Brute Input.
         freopen(GetAbsoluteFileName("generated_input_brute.txt"), "w", stdout);
         GenerateInput();
         // Not sure why, but this new line character seems to be needed. Else,
         // input for number fo testcases during Solve(MAIN) causes issue.
         cout << endl;
         cout.flush();
+
+        // Copy Brute Input to Main Input.
         fs::remove(GetAbsoluteFileName("generated_input_main.txt"));
         fs::copy(GetAbsoluteFileName("generated_input_brute.txt"),
                  GetAbsoluteFileName("generated_input_main.txt"));
+
+        // Solve with Brute Solution.
         freopen(GetAbsoluteFileName("generated_input_brute.txt"), "r", stdin);
         freopen(GetAbsoluteFileName("output_brute.txt"), "w", stdout);
         Solve(BRUTE);
+
+        // Update the File IO for Main Solution.
         freopen(GetAbsoluteFileName("generated_input_main.txt"), "r", stdin);
         freopen(GetAbsoluteFileName("output.txt"), "w", stdout);
         return;
