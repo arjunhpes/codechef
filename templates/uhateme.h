@@ -137,9 +137,9 @@ inline void SetInputType(InputType input_type, void (*GenerateInput)(),
 }
 
 inline void SolveTestCaseDriver(SolveType solve_type,
-                                void (*SolveBruteTestCase)(),
-                                void (*SolveTestCase)(), int &TEST_CASE,
-                                int tc) {
+                                std::function<void()> solve_brute_test_case,
+                                std::function<void()> solve_test_case,
+                                int &TEST_CASE, int tc) {
   TEST_CASE = tc;
   if (IsDebugMode()) {
     cerr << "\n  Starting Test Case #" << tc << endl;
@@ -147,9 +147,9 @@ inline void SolveTestCaseDriver(SolveType solve_type,
   auto start = chr::high_resolution_clock::now();
 
   if (solve_type == BRUTE) {
-    SolveBruteTestCase();
+    solve_brute_test_case();
   } else {
-    SolveTestCase();
+    solve_test_case();
   }
   auto stop = chr::high_resolution_clock::now();
 
