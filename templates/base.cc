@@ -30,15 +30,22 @@ using namespace std;
 
 enum SolveType { BRUTE, MAIN };
 
-// Template used by Ritesh Singla (alias=uahteme) for competitive programming.
+/*
+////////////////////////////////////////////////////////////////////////////////
+//
 // TEMPLATE START
-#ifdef UHATEME // Defined in Xcode Artichtecture for local development.
-enum InputType { STDOUT, FILE_IO, FILE_INPUT, GENERATED_INPUT };
-#define CURRENT_INPUT_TYPE GENERATED_INPUT
+//
+// Template used by Ritesh Singla (alias=uhateme) for competitive programming.
+//
+////////////////////////////////////////////////////////////////////////////////
+*/
+
+#ifdef UHATEME  // Defined in Xcode Artichtecture for local development.
+enum InputType { STDOUT, STDOUT_DBG, FILE_IO, FILE_INPUT, GENERATED_INPUT };
+#define CURRENT_INPUT_TYPE STDOUT
 #include "uhateme.h"
 
 int TEST_CASE = -1;
-
 #endif
 
 namespace {
@@ -47,14 +54,14 @@ namespace {
 #define endl '\n'
 
 // Loops
-#define rep(i, j, n) for (int i = (j); i < (n); i++)
-#define repv(i, j, n) for (int i = (n)-1; i >= (j); i--)
-#define set2(ar, i, j, v)                                                      \
-    rep(a, 0, i) {                                                             \
-        rep(b, 0, j) { ar[a][b] = v; }                                         \
-    }
-#define set1(ar, i, v)                                                         \
-    rep(a, 0, i) { ar[a] = v; }
+#define rep(i, j, n) for (int i = (int)(j); i < (int)(n); i++)
+#define repv(i, j, n) for (int i = (int)(n)-1; i >= (int)(j); i--)
+#define set2(ar, i, j, v)          \
+  rep(a, 0, i) {                   \
+    rep(b, 0, j) { ar[a][b] = v; } \
+  }
+#define set1(ar, i, v) \
+  rep(a, 0, i) { ar[a] = v; }
 
 // Data Types
 #define int64 long long int
@@ -69,56 +76,56 @@ namespace {
 // Speeds up cin/cout. Do not use in cin/cout and scanf/printf
 // when using UseFastIO
 inline void UseFastIO(bool use_fast_io) {
-    if (use_fast_io) {
-        cin.tie(0);
-        cout.tie(0);
-        cin.sync_with_stdio(0);
-        cout.sync_with_stdio(0);
-    }
+  if (use_fast_io) {
+    cin.tie(0);
+    cout.tie(0);
+    cin.sync_with_stdio(0);
+    cout.sync_with_stdio(0);
+  }
 }
 
-} // namespace
-// TEMPLATE END
+}  // namespace
 
 void GenerateInput() {}
 
 // Use global vector to pass on the answers if needed.
 vector<int> brute_ans;
-void SolveBruteTestCase() {}
+void SolveBruteTestCase() {
+  // Pushback answer using index |TEST_CASE|. This can be accessed via
+  // |SolveTestCase|
+}
+
+/*
+////////////////////////////////////////////////////////////////////////////////
+//
+// TEMPLATE END
+//
+// Template used by Ritesh Singla (alias=uhateme) for competitive programming.
+//
+////////////////////////////////////////////////////////////////////////////////
+*/
 
 void SolveTestCase() {}
 
 void Solve(SolveType solve_type) {
-    int t;
-    cin >> t;
-    for (int tc = 1; tc <= t; tc++) {
-        cout << "Case #" << tc << ": ";
+  int t;
+  cin >> t;
+  for (int tc = 1; tc <= t; tc++) {
+    cout << "Case #" << tc << ": ";
 #ifdef UHATEME
-        TEST_CASE = tc;
-        if (CURRENT_INPUT_TYPE == FILE_IO) {
-            cerr << "Starting Test Case #" << tc << endl;
-        }
-        if (solve_type == BRUTE) {
-            SolveBruteTestCase();
-        } else {
-            SolveTestCase();
-        }
-        if (CURRENT_INPUT_TYPE == FILE_IO) {
-            cerr << "Completed Test Case #" << tc << endl;
-            cout.flush();
-            cerr.flush();
-        }
+    SolveTestCaseDriver(solve_type, SolveBruteTestCase, SolveTestCase,
+                        TEST_CASE, tc);
 #else
-        SolveTestCase();
+    SolveTestCase();
 #endif
-        cout << endl;
-    }
+    cout << endl;
+  }
 }
 
 int main() {
-    UseFastIO(true);
+  UseFastIO(true);
 #ifdef UHATEME
-    SetInputType(CURRENT_INPUT_TYPE, GenerateInput, Solve);
+  SetInputType(CURRENT_INPUT_TYPE, GenerateInput, Solve);
 #endif
-    Solve(MAIN);
+  Solve(MAIN);
 }

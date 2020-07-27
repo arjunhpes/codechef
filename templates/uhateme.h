@@ -1,3 +1,4 @@
+
 //
 //  MIT License
 //
@@ -26,60 +27,139 @@
 #define uhateme_h
 
 #include <bits/stdc++.h>
+#include <chrono>
 #include <filesystem>
 
 using namespace std;
 namespace fs = std::__fs::filesystem;
+namespace chr = std::chrono;
+
+inline void CHECK(bool condition, const string &error_msg) {
+  if (!condition) {
+    cerr << error_msg;
+    abort();
+  }
+}
+
+inline void CHECK_LT(int left, int right, const string &error_msg) {
+  CHECK(left < right, error_msg);
+}
+
+inline void CHECK_LE(int left, int right, const string &error_msg) {
+  CHECK(left <= right, error_msg);
+}
+
+inline void CHECK_GT(int left, int right, const string &error_msg) {
+  CHECK(left > right, error_msg);
+}
+
+inline void CHECK_GE(int left, int right, const string &error_msg) {
+  CHECK(left >= right, error_msg);
+}
 
 inline const char *GetAbsoluteFileName(const string &file_name) {
-    // FILE_IO_DIR is defined in Xcode Artichtecture for local development.
-    string file_path(FILE_IO_DIR);
-    file_path.append(file_name);
-    return file_path.c_str();
+  // FILE_IO_DIR is defined in Xcode Artichtecture for local development.
+  string file_path(FILE_IO_DIR);
+  file_path.append(file_name);
+  return file_path.c_str();
+}
+
+bool IsDebugMode() {
+  return !(CURRENT_INPUT_TYPE == STDOUT || CURRENT_INPUT_TYPE == FILE_INPUT);
 }
 
 inline void SetInputType(InputType input_type, void (*GenerateInput)(),
                          void (*Solve)(SolveType)) {
-    if (input_type == STDOUT) {
-        return;
+  if (input_type == STDOUT) {
+    return;
+  }
+  if (input_type == STDOUT_DBG) {
+    return;
+  }
+  if (input_type == FILE_IO) {
+    freopen(GetAbsoluteFileName("input.txt"), "r", stdin);
+    freopen(GetAbsoluteFileName("output.txt"), "w", stdout);
+    return;
+  }
+  if (input_type == FILE_INPUT) {
+    freopen(GetAbsoluteFileName("input.txt"), "r", stdin);
+    return;
+  }
+  if (input_type == GENERATED_INPUT) {
+    // Generate Brute Input.
+    if (IsDebugMode()) {
+      cerr << "Generating the input..." << endl;
     }
-    if (input_type == FILE_IO) {
-        freopen(GetAbsoluteFileName("input.txt"), "r", stdin);
-        freopen(GetAbsoluteFileName("output.txt"), "w", stdout);
-        return;
+    freopen(GetAbsoluteFileName("generated_input_brute.txt"), "w", stdout);
+    GenerateInput();
+    // Not sure why, but this new line character seems to be needed. Else,
+    // input for number fo testcases during Solve(MAIN) causes issue.
+    cout << endl;
+    if (IsDebugMode()) {
+      cerr << "Input Generated." << endl;
     }
-    if (input_type == FILE_INPUT) {
-        freopen(GetAbsoluteFileName("input.txt"), "r", stdin);
-        return;
-    }
-    if (input_type == GENERATED_INPUT) {
-        // Generate Brute Input.
-        freopen(GetAbsoluteFileName("generated_input_brute.txt"), "w", stdout);
-        GenerateInput();
-        // Not sure why, but this new line character seems to be needed. Else,
-        // input for number fo testcases during Solve(MAIN) causes issue.
-        cout << endl;
-        cout.flush();
+    cout.flush();
 
-        // Copy Brute Input to Main Input.
-        fs::remove(GetAbsoluteFileName("generated_input_main.txt"));
-        fs::copy(GetAbsoluteFileName("generated_input_brute.txt"),
-                 GetAbsoluteFileName("generated_input_main.txt"));
-
-        // Solve with Brute Solution.
-        freopen(GetAbsoluteFileName("generated_input_brute.txt"), "r", stdin);
-        freopen(GetAbsoluteFileName("output_brute.txt"), "w", stdout);
-        Solve(BRUTE);
-
-        // Update the File IO for Main Solution.
-        freopen(GetAbsoluteFileName("generated_input_main.txt"), "r", stdin);
-        freopen(GetAbsoluteFileName("output.txt"), "w", stdout);
-        return;
+    // Copy Brute Input to Main Input.
+    if (IsDebugMode()) {
+      cerr << "Copying generated_input_brute.txt..." << endl;
     }
-    cerr << "Unable to setup the input type. Please handle the error. Found "
+    fs::remove(GetAbsoluteFileName("generated_input_main.txt"));
+    fs::copy(GetAbsoluteFileName("generated_input_brute.txt"),
+             GetAbsoluteFileName("generated_input_main.txt"));
+    if (IsDebugMode()) {
+      cerr << "File Copied." << endl;
+    }
+
+    // Solve with Brute Solution.
+    if (IsDebugMode()) {
+      cerr << "Running brute force solution..." << endl;
+    }
+    freopen(GetAbsoluteFileName("generated_input_brute.txt"), "r", stdin);
+    freopen(GetAbsoluteFileName("output_brute.txt"), "w", stdout);
+    Solve(BRUTE);
+    if (IsDebugMode()) {
+      cerr << "Brute Force solution ran successfully." << endl;
+    }
+
+    // Update the File IO for Main Solution.
+    if (IsDebugMode()) {
+      cerr << "Running main solution..." << endl;
+    }
+    freopen(GetAbsoluteFileName("generated_input_main.txt"), "r", stdin);
+    freopen(GetAbsoluteFileName("output.txt"), "w", stdout);
+    return;
+  }
+  cerr << "Unable to setup the input type. Please handle the error. Found "
             "input type = "
          << input_type;
-    abort();
+  abort();
+}
+
+inline void SolveTestCaseDriver(SolveType solve_type,
+                                void (*SolveBruteTestCase)(),
+                                void (*SolveTestCase)(), int &TEST_CASE,
+                                int tc) {
+  TEST_CASE = tc;
+  if (IsDebugMode()) {
+    cerr << "\n  Starting Test Case #" << tc << endl;
+  }
+  auto start = chr::high_resolution_clock::now();
+
+  if (solve_type == BRUTE) {
+    SolveBruteTestCase();
+  } else {
+    SolveTestCase();
+  }
+  auto stop = chr::high_resolution_clock::now();
+
+  if (IsDebugMode()) {
+    auto duration = chr::duration_cast<chr::milliseconds>(stop - start);
+    cerr << "\n  Completed Test Case #" << tc << " in "
+         << duration.count() / 1000.0 << " seconds";
+    cout.flush();
+    cerr.flush();
+  }
 }
 
 #endif /* uhateme_h */
