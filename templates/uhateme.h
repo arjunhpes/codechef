@@ -1,4 +1,5 @@
 
+
 //
 //  MIT License
 //
@@ -161,5 +162,125 @@ inline void SolveTestCaseDriver(SolveType solve_type,
     cerr.flush();
   }
 }
+
+namespace {
+
+// Split string about a character
+queue<string> StrSplit(const string &str, char c, bool skip_empty = false) {
+  queue<string> ans;
+  int start = 0;
+  for (int i = 0; i < (int) str.length(); i++) {
+    if (str[i] == c) {
+      int end = i - 1;
+      // String of consideration = [start, end] -> inclusive.
+      if (start <= end) {
+        ans.push(str.substr(start, end - start + 1));
+      } else if (!skip_empty && start == end + 1) {
+        // insert empty strings as well.
+        ans.push("");
+      }
+      start = i + 1;
+    }
+  }
+  int end = (int) str.length() - 1;
+  if (start <= end) {
+    ans.push(str.substr(start, end - start + 1));
+  }
+  return ans;
+}
+
+// Final Base method that actually prints the arguments.
+template <typename T>
+void PrintArgOnConsole(const string &arg_name, T &arg) {
+  cerr << "  " << arg_name << " = " << arg << "\n";
+}
+
+// Generic catch all for tracing the pointers
+template <typename T>
+void TraceArg(const string &arg_name, T *arg, int size) {
+  int length = size / sizeof(arg[0]);
+  for (int i = 0; i < length; i++) {
+    string element_name = arg_name + "[" + to_string(i) + "]";
+    PrintArgOnConsole(element_name, *(arg + i));
+  }
+}
+template <typename T>
+void TraceArg(const string &arg_name, const T *arg, int size) {
+  int len = size / sizeof(arg[0]);
+  for (int i = 0; i < len; i++) {
+    string element_name = arg_name + "[" + to_string(i) + "]";
+    PrintArgOnConsole(element_name, *(arg + i));
+  }
+}
+
+// Generic catch all for tracing the references
+template <typename T>
+void TraceArg(const string &arg_name, T &arg, int size) {
+  PrintArgOnConsole(arg_name, arg);
+}
+template <typename T>
+void TraceArg(const string &arg_name, const T &arg, int size) {
+  PrintArgOnConsole(arg_name, arg);
+}
+
+// Tracing char*
+void TraceArg(const string &arg_name, char *arg, int size) {
+  PrintArgOnConsole(arg_name, arg);
+}
+void TraceArg(const string &arg_name, const char *arg, int size) {
+  PrintArgOnConsole(arg_name, arg);
+}
+
+// Tracing string
+void TraceArg(const string &arg_name, string &arg, int size) {
+  PrintArgOnConsole(arg_name, arg);
+}
+void TraceArg(const string &arg_name, const string &arg, int size) {
+  PrintArgOnConsole(arg_name, arg);
+}
+
+// Tracing vector
+template <typename T>
+void TraceArg(const string &arg_name, vector<T> &arg, int size) {
+  for (int i = 0; i < arg.size(); i++) {
+    string element_name = arg_name + "[" + to_string(i) + "]";
+    TraceArg(element_name.c_str(), arg[i], sizeof(arg[i]));
+  }
+}
+template <typename T>
+void TraceArg(const string &arg_name, const vector<T> &arg, int size) {
+  for (int i = 0; i < arg.size(); i++) {
+    string element_name = arg_name + "[" + to_string(i) + "]";
+    TraceArg(element_name.c_str(), arg[i], sizeof(arg[i]));
+  }
+}
+
+// Base method for recursive variadic method used for tracing.
+template <typename Arg>
+void TraceInternal(queue<string> &names, Arg &&arg1) {
+  TraceArg(names.front(), arg1, sizeof(arg1));
+  names.pop();
+}
+
+// Recursive variadic method used for tracing.
+template <typename Arg, typename... Args>
+void TraceInternal(queue<string> &names, Arg &&arg1, Args &&... args) {
+  TraceArg(names.front(), arg1, sizeof(arg1));
+  names.pop();
+  TraceInternal(names, args...);
+}
+
+// Initial method for initializing the tracing.
+template <typename Arg, typename... Args>
+void TraceInit(const char *method_name, const char *var_names_str, Arg &&arg1,
+               Args &&... args) {
+  cerr << "\n#" << method_name << ": \n";
+  queue<string> var_names = StrSplit(var_names_str, ',', true);
+  TraceInternal(var_names, arg1, args...);
+}
+
+}  // namespace
+
+#define Trace(...) TraceInit(__FUNCTION__, #__VA_ARGS__, __VA_ARGS__)
 
 #endif /* uhateme_h */
