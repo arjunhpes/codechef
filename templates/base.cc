@@ -46,6 +46,8 @@ enum InputType { STDOUT, STDOUT_DBG, FILE_IO, FILE_INPUT, GENERATED_INPUT };
 #include "uhateme.h"
 
 int TEST_CASE = -1;
+#else
+#define Trace(...)
 #endif
 
 namespace {
